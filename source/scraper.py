@@ -51,15 +51,12 @@ def ParseRobots(sUrl):
     return(RobotsConfig(lAllowed, lDisallowed, iDelay))
 
 
-def scrap(sUrl):
-    # Maxim platges
-    maxVaixells = 100
-    
+def ScrapVessels(sUrl, maxVaixells, allowed, disallowed, delay):
     # Obrim el navegado Chrome
     browser = webdriver.Chrome()
     
     # Carregam la pàgina principal de la base de dades de vaixells AIS
-    browser.get("https://www.vesselfinder.com/es/vessels")
+    browser.get(sUrl)
     
     # Cream un índex dels vaixells que anam a registrar
     indexVaixells = []
@@ -95,8 +92,11 @@ def scrap(sUrl):
         # Carregam la pàgina del baixell
         browser.get(index[0])
     
-        # Identificam la taula dades
+        #----------------------------------------------------------------------
+        # DATOS MAESTROS
+        #----------------------------------------------------------------------
         
+        # Identificam la taula dades
         try:
             taula = browser.find_element(By.XPATH, '//table[@class="aparams"]')
         except NoSuchElementException:
@@ -116,6 +116,28 @@ def scrap(sUrl):
         origen = ""
         bandera = ""
         imo = ""
+        sPuertoDestino = ""
+        sUrlPuertoDestino = ""
+        sPuertoOrigen = ""
+        sUrlPuertoOrigen = ""
+        sETA = ""
+        sETAPredecido = ""
+        sDistancia = ""
+        sTiempo = ""
+        sRumbo = ""
+        sVelocidad = ""
+        sCaladoActual = ""
+        sEstadoNavegacion = ""
+        sUltimaPosicionRecibida = ""
+        sMMSI = ""
+        sSignal = "" 
+        sGT = "" 
+        sDWT = "" 
+        sTEU = "" 
+        sCrudo = "" 
+        sGrano = "" 
+        sFardo = "" 
+        
         for fila in iteradorFiles:
             try:
                 atribut = fila.find_element(By.CLASS_NAME, 'n3').get_attribute('innerText')
@@ -123,24 +145,73 @@ def scrap(sUrl):
             except NoSuchElementException:
                 continue;
             print("   " + atribut + ": " + valor)
-            if atribut == "Nombre del buque":
-                nombre = valor
-            elif atribut == "Tipo de barco":
-                tipo = valor
-            elif atribut == "Eslora (m)":
-                eslora = valor
-            elif atribut == "Manga (m)":
-                manga = valor
-            elif atribut == "Calado (m)":
-                calado = valor
-            elif atribut == "Año de construccion":
-                año = valor
-            elif atribut == "Lugar de construccion":
-                origen = valor
-            elif atribut == "Bandera":
-                bandera = valor
-            elif atribut == "Numero IMO":
-                imo = valor
+            match atribut:
+                case "Nombre del buque":
+                    nombre = valor
+                case "Tipo de barco":
+                    tipo = valor
+                case "Eslora (m)":
+                    eslora = valor
+                case "Manga (m)":
+                    manga = valor
+                case "Calado (m)":
+                    calado = valor
+                case "Año de construccion":
+                    año = valor
+                case "Lugar de construccion":
+                    origen = valor
+                case "Bandera":
+                    bandera = valor
+                case "Numero IMO":
+                    imo = valor
+                case "Predicted ETA":
+                    sETAPredecido = valor
+                case "Distance / Time":
+                    if ('/' in valor):
+                        sTemp = valor.split(' / ')
+                        sDistancia = sTemp[0]
+                        sTiempo = sTemp[1]
+                    else:
+                        sDistancia = ""
+                        sTiempo = ""
+                case "Rumbo / Velocidad":
+                    if ('/' in valor):
+                        sTemp = valor.split(' / ')
+                        sRumbo = sTemp[0]
+                        sVelocidad = sTemp[1]
+                    else:
+                        sRumbo = ""
+                        sVelocidad = ""
+                case "Calado actual":
+                    sCaladoActual = valor
+                case "Navigation Status":
+                    sEstadoNavegacion = valor
+                case "IMO / MMSI":
+                    if ('/' in valor):
+                        sTemp = valor.split(' / ')
+                        sMMSI = sTemp[1]
+                    else:
+                        sMMSI = ""
+                case "Señal de llamada":
+                    sSignal = valor
+                case "GT":
+                    sGT = valor
+                case "DWT (t)":
+                    sDWT = valor
+                case "TEU":
+                    sTEU = valor
+                case "Crudo (bbl)":
+                    sCrudo = valor
+                case "Grano":
+                    sGrano = valor
+                case "Fardo":
+                    sFardo = valor
+            
+        # Finalment fem scraping d'altres valors interessants
+        elemShipSection = WebDriverWait(browser, 5).until(EC.presence_of_element_located((By.CLASS_NAME, 'ship-section')))
+        sUltimaPosicionRecibida        
+        
+        # Es guarden les dades obtingudes (falten les dades AIS)
         llistaVaixells.append([i,nombre,imo,index[0],tipo,eslora,manga,calado,bandera,año,origen])
         i += 1
         
