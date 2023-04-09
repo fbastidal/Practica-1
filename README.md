@@ -7,7 +7,7 @@ _Aquest repositori correspon a la pràctica 1 de l'assignatura **Tipologia i Cic
 
 Assignatura: M2.851 / Semestre: 2022-23/1 / Data: 30/04/2023
 
-URL del lloc web triat: https://subastas.boe.es (prohibit fer web scraping en aquesta web, confirmat per la Agencia Estatal Boletín Oficial del Estado)
+URL del lloc web triat: https://www.vesselfinder.com/es/vessels
 
 ## Autors
   * Francisco Bastida López - [fbastidal@uoc.edu](fbastidal@uoc.edu)
