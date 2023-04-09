@@ -5,7 +5,7 @@ _Aquest repositori correspon a la pràctica 1 de l'assignatura **Tipologia i Cic
 
 # Pràctica 1 - Tipología i Cicle de Vida de les Dades
 
-Assignatura: M2.851 / Semestre: 2022-23/1 / Data: 30/04/2023
+Assignatura: M2.851 / Semestre: 2022-23/1 / Data: 25/04/2023
 
 URL del lloc web triat: https://www.vesselfinder.com/es/vessels
 
