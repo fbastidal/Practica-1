@@ -11,7 +11,8 @@ def main():
     
     # Iniciem el web scraping
     maxVaixells = 2
-    ScrapVessels('https://www.vesselfinder.com/es/vessels', maxVaixells, oParsedRobots.allowed, oParsedRobots.disallowed, oParsedRobots.delay)
+    sOutputFilePath = "vessels_test.csv"
+    ScrapVessels('https://www.vesselfinder.com/es/vessels', maxVaixells, oParsedRobots.allowed, oParsedRobots.disallowed, oParsedRobots.delay, sOutputFilePath)
 
 if __name__ == "__main__":
     main()
