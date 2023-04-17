@@ -10,9 +10,9 @@ def main():
     oParsedRobots = ParseRobots('https://www.vesselfinder.com/robots.txt')
     
     # Iniciem el web scraping
-    maxVaixells = 2
+    maxVaixells = 5
     sOutputFilePath = "vessels_test.csv"
-    ScrapVessels('https://www.vesselfinder.com/es/vessels', maxVaixells, oParsedRobots.allowed, oParsedRobots.disallowed, oParsedRobots.delay, sOutputFilePath)
+    oVesselsList = ScrapVessels('https://www.vesselfinder.com/es/vessels', maxVaixells, oParsedRobots.allowed, oParsedRobots.disallowed, oParsedRobots.delay)
 
 if __name__ == "__main__":
     main()

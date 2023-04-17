@@ -13,6 +13,40 @@ class RobotsConfig:
     self.allowed = allowed
     self.disallowed = disallowed
     self.delay = delay
+    
+class VesselInfo:
+    def __init__(self):
+        self.nombre = ""
+        self.tipo = ""
+        self.eslora = ""
+        self.manga = ""
+        self.calado = ""
+        self.anyo = ""
+        self.origen = ""
+        self.bandera = ""
+        self.imo = ""
+        self.puertoDestino = ""
+        self.urlPuertoDestino = ""
+        self.puertoOrigen = ""
+        self.urlPuertoOrigen = ""
+        self.ETA = ""
+        self.ETAPredecido = ""
+        self.distancia = ""
+        self.tiempo = ""
+        self.rumbo = ""
+        self.velocidad = ""
+        self.caladoActual = ""
+        self.estadoNavegacion = ""
+        self.ultimaPosicionRecibida = ""
+        self.MMSI = ""
+        self.signal = ""
+        self.GT = ""
+        self.DWT = ""
+        self.TEU = ""
+        self.crudo = ""
+        self.grano = ""
+        self.fardo = ""
+
 
 def ParseRobots(sUrl):
     # Preparem les variables amb els valors per defecte
@@ -65,11 +99,103 @@ def CheckUrlIsAllowed(sUrl, vAllowed, vDisallowed):
             bFinish == True
                 
     # Si no es trobava en cap de les llistes de permesos o no, llavors la considerem com a permesa
-    print(sUrl + " -> " + str(bAllowed))
     return(bAllowed)
 
 
-def ScrapVessels(sUrl, maxVaixells, vAllowed, vDisallowed, iDelay, sOutputFilePath):
+def ScrapVesselData(sUrl, browser, delay):
+    # Carregam la pàgina del baixell
+    browser.get(sUrl)
+    time.sleep(delay)
+   
+    # Identificam la taula dades
+    try:
+        taula = browser.find_element(By.XPATH, '//table[@class="aparams"]')
+    except NoSuchElementException:
+        return(None)
+    
+    iteradorFiles = taula.find_elements(By.XPATH, '//tr')
+    
+    # Creem el nou objecte que contindrà la informació del vaixell
+    oVessel = VesselInfo()
+    
+    for fila in iteradorFiles:
+        atribut = ""
+        try:
+            atribut = fila.find_element(By.CLASS_NAME, 'n3').get_attribute('innerText')
+            valor = fila.find_element(By.CLASS_NAME, 'v3').get_attribute('innerText')
+        except NoSuchElementException:
+            continue
+        
+        if (atribut == "Nombre del buque"):
+            oVessel.nombre = valor
+        elif (atribut == "Tipo de barco"):
+            oVessel.tipo = valor
+        elif (atribut == "Eslora (m)"):
+            oVessel.eslora = valor
+        elif (atribut == "Manga (m)"):
+            oVessel.manga = valor
+        elif (atribut == "Calado (m)"):
+            oVessel.calado = valor
+        elif (atribut == "Año de construccion"):
+            oVessel.anyo = valor
+        elif (atribut == "Lugar de construccion"):
+            oVessel.origen = valor
+        elif (atribut == "Bandera"):
+            oVessel.bandera = valor
+        elif (atribut == "Numero IMO"):
+            oVessel.imo = valor
+        elif (atribut == "Predicted ETA"):
+            oVessel.ETAPredecido = valor
+        elif (atribut == "Distance / Time"):
+            if ('/' in valor):
+                sTemp = valor.split(' / ')
+                oVessel.distancia = sTemp[0]
+                oVessel.tiempo = sTemp[1]
+            else:
+                oVessel.distancia = ""
+                oVessel.tiempo = ""
+        elif (atribut == "Rumbo / Velocidad"):
+            if ('/' in valor):
+                sTemp = valor.split(' / ')
+                oVessel.rumbo = sTemp[0]
+                oVessel.velocidad = sTemp[1]
+            else:
+                oVessel.rumbo = ""
+                oVessel.velocidad = ""
+        elif (atribut == "Calado actual"):
+            oVessel.caladoActual = valor
+        elif (atribut == "Navigation Status"):
+            oVessel.estadoNavegacion = valor
+        elif (atribut == "IMO / MMSI"):
+            if ('/' in valor):
+                sTemp = valor.split(' / ')
+                oVessel.MMSI = sTemp[1]
+            else:
+                oVessel.MMSI = ""
+            
+            print(oVessel.MMSI)
+        elif (atribut == "Señal de llamada"):
+            oVessel.signal = valor
+        elif (atribut == "GT"):
+            oVessel.GT = valor
+        elif (atribut == "DWT (t)"):
+            oVessel.DWT = valor
+        elif (atribut == "TEU"):
+            oVessel.TEU = valor
+        elif (atribut == "Crudo (bbl)"):
+            oVessel.crudo = valor
+        elif (atribut == "Grano"):
+            oVessel.grano = valor
+        elif (atribut == "Fardo"):
+            oVessel.fardo = valor
+        elif (atribut == "Position received"):
+            oVessel.ultimaPosicionRecibida = fila.find_element(By.CLASS_NAME, 'v3').get_attribute('data-title')
+    
+    # Retornem l'objecte que conté tota la informació del vaixell actual
+    return(oVessel)
+
+
+def ScrapVessels(sUrl, maxVaixells, vAllowed, vDisallowed, iDelay):
     # Obrim el navegado Chrome
     browser = webdriver.Chrome()
     time.sleep(iDelay)
@@ -84,7 +210,6 @@ def ScrapVessels(sUrl, maxVaixells, vAllowed, vDisallowed, iDelay, sOutputFilePa
         numVaixells = 0 # Inicialment cap vaixell
         
         while numVaixells < maxVaixells:
-        
             # Validam que el títol de la pàgina correspon amb el que esperam
             assert "Barcos base de datos - VesselFinder" in browser.title
         
@@ -101,147 +226,33 @@ def ScrapVessels(sUrl, maxVaixells, vAllowed, vDisallowed, iDelay, sOutputFilePa
             if numVaixells < maxVaixells:
                 # Com que no tenim prou vaixells avançam a la següent pàgina
                 botoNext = browser.find_element(By.XPATH, '//link[@rel="next"]')
-                browser.get(botoNext.get_attribute("href"))
-                time.sleep(iDelay)
+                sUrl = botoNext.get_attribute("href")
+                if CheckUrlIsAllowed(sUrl, vAllowed, vDisallowed):
+                    browser.get(sUrl)
+                    time.sleep(iDelay)
         
         
         # Una vegada que tenim l'índex de tots els Vaixells recollim les seves dades
         llistaVaixells = []
-        i = 1
         for index in indexVaixells:
-            print(str(i) + ". " + index[0])
-            
-            # Carregam la pàgina del baixell
-            browser.get(index[0])
-            time.sleep(iDelay)
-        
-            #----------------------------------------------------------------------
-            # DATOS MAESTROS
-            #----------------------------------------------------------------------
-            
-            # Identificam la taula dades
-            try:
-                taula = browser.find_element(By.XPATH, '//table[@class="aparams"]')
-            except NoSuchElementException:
-                print("  Sense taula de paràmetres")
-                llistaVaixells.append([i,"","",index[0],"","","","","","",""])
-                i += 1
-                continue
-            iteradorFiles = taula.find_elements(By.XPATH, '//tr')
-            
-            # Netejam les variables a llegir
-            nombre = ""
-            tipo = ""
-            eslora = ""
-            manga = ""
-            calado = ""
-            año = ""
-            origen = ""
-            bandera = ""
-            imo = ""
-            sPuertoDestino = ""
-            sUrlPuertoDestino = ""
-            sPuertoOrigen = ""
-            sUrlPuertoOrigen = ""
-            sETA = ""
-            sETAPredecido = ""
-            sDistancia = ""
-            sTiempo = ""
-            sRumbo = ""
-            sVelocidad = ""
-            sCaladoActual = ""
-            sEstadoNavegacion = ""
-            sUltimaPosicionRecibida = ""
-            sMMSI = ""
-            sSignal = "" 
-            sGT = "" 
-            sDWT = "" 
-            sTEU = "" 
-            sCrudo = "" 
-            sGrano = "" 
-            sFardo = "" 
-            
-            for fila in iteradorFiles:
-                atribut = ""
-                try:
-                    atribut = fila.find_element(By.CLASS_NAME, 'n3').get_attribute('innerText')
-                    valor = fila.find_element(By.CLASS_NAME, 'v3').get_attribute('innerText')
-                except NoSuchElementException:
-                    continue;
+            sUrl = index[0]            
+            if CheckUrlIsAllowed(sUrl, vAllowed, vDisallowed):
+                # Fem el raspat del vaixell en curs
+                oVessel = ScrapVesselData(sUrl, browser, iDelay)
+                                
+                # Es guarden les dades obtingudes (falten les dades AIS)
+                llistaVaixells.append(oVessel)
                 
-                print("   " + atribut + ": " + valor)
-                if (atribut == "Nombre del buque"):
-                    nombre = valor
-                elif (atribut == "Tipo de barco"):
-                    tipo = valor
-                elif (atribut == "Eslora (m)"):
-                    eslora = valor
-                elif (atribut == "Manga (m)"):
-                    manga = valor
-                elif (atribut == "Calado (m)"):
-                    calado = valor
-                elif (atribut == "Año de construccion"):
-                    año = valor
-                elif (atribut == "Lugar de construccion"):
-                    origen = valor
-                elif (atribut == "Bandera"):
-                    bandera = valor
-                elif (atribut == "Numero IMO"):
-                    imo = valor
-                elif (atribut == "Predicted ETA"):
-                    sETAPredecido = valor
-                elif (atribut == "Distance / Time"):
-                    if ('/' in valor):
-                        sTemp = valor.split(' / ')
-                        sDistancia = sTemp[0]
-                        sTiempo = sTemp[1]
-                    else:
-                        sDistancia = ""
-                        sTiempo = ""
-                elif (atribut == "Rumbo / Velocidad"):
-                    if ('/' in valor):
-                        sTemp = valor.split(' / ')
-                        sRumbo = sTemp[0]
-                        sVelocidad = sTemp[1]
-                    else:
-                        sRumbo = ""
-                        sVelocidad = ""
-                elif (atribut == "Calado actual"):
-                    sCaladoActual = valor
-                elif (atribut == "Navigation Status"):
-                    sEstadoNavegacion = valor
-                elif (atribut == "IMO / MMSI"):
-                    if ('/' in valor):
-                        sTemp = valor.split(' / ')
-                        sMMSI = sTemp[1]
-                    else:
-                        sMMSI = ""
-                elif (atribut == "Señal de llamada"):
-                    sSignal = valor
-                elif (atribut == "GT"):
-                    sGT = valor
-                elif (atribut == "DWT (t)"):
-                    sDWT = valor
-                elif (atribut == "TEU"):
-                    sTEU = valor
-                elif (atribut == "Crudo (bbl)"):
-                    sCrudo = valor
-                elif (atribut == "Grano"):
-                    sGrano = valor
-                elif (atribut == "Fardo"):
-                    sFardo = valor
+        # Retornem el llistat de vaixells que s'han pogut raspar
+        
             
-            # Finalment fem scraping d'altres valors interessants
-            elemShipSection = WebDriverWait(browser, 5).until(EC.presence_of_element_located((By.CLASS_NAME, 'ship-section')))
-            sUltimaPosicionRecibida        
-            
-            # Es guarden les dades obtingudes (falten les dades AIS)
-            llistaVaixells.append([i,nombre,imo,index[0],tipo,eslora,manga,calado,bandera,año,origen])
-            i += 1
-            
-        with open("Vaixells.txt","w") as fitxer:
-            fitxer.write("Id, Nombre, IMO, URL, Tipo, Eslora, MAnga, Calado, Bandera, Año, Construccion\n")
-            for vaixell in llistaVaixells:
-                fitxer.write(str(vaixell[0])+", "+vaixell[1]+", "+vaixell[2]+", "+vaixell[3]+", "+vaixell[4]+", "+vaixell[5]+", "+vaixell[6]+", "+vaixell[7]+", "+vaixell[8]+", "+vaixell[9]+", "+vaixell[10]+"\n")
+#        with open("Vaixells.txt","w") as fitxer:
+#            fitxer.write("Id, Nombre, IMO, URL, Tipo, Eslora, MAnga, Calado, Bandera, Año, Construccion\n")
+#            for vaixell in llistaVaixells:
+#                fitxer.write(str(vaixell[0])+", "+vaixell[1]+", "+vaixell[2]+", "+vaixell[3]+", "+vaixell[4]+", "+vaixell[5]+", "+vaixell[6]+", "+vaixell[7]+", "+vaixell[8]+", "+vaixell[9]+", "+vaixell[10]+"\n")
     else:
         print("URL no permesa al fitxer robots.txt!!!")
+        return(None)
+        
+        
+#def ExportVesselsData(vesselsList, output):
