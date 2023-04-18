@@ -1,3 +1,0 @@
-Id, Nombre, IMO, URL, Tipo, Eslora, MAnga, Calado, Bandera, Año, Construccion
-1, PRELUDE, 9648714, https://www.vesselfinder.com/es/vessels/details/9648714, Offshore Support Vessel, 489, 74, -, Australia, 2017, 
-2, PIONEERING SPIRIT, 9593505, https://www.vesselfinder.com/es/vessels/details/9593505, Crane Ship, 477, 124, , Malta, 2014, 

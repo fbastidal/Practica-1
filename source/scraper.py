@@ -2,6 +2,7 @@
 
 import io
 import time
+import csv
 from selenium import webdriver                                     # Drivers de Firefox y Chrome
 from selenium.webdriver.common.by import By                        # Per a localitzar elements en una pàgina
 from selenium.common.exceptions import NoSuchElementException
@@ -13,6 +14,7 @@ class RobotsConfig:
     self.allowed = allowed
     self.disallowed = disallowed
     self.delay = delay
+    
     
 class VesselInfo:
     def __init__(self):
@@ -111,6 +113,7 @@ def ScrapVesselData(sUrl, browser, delay):
     try:
         taula = browser.find_element(By.XPATH, '//table[@class="aparams"]')
     except NoSuchElementException:
+        print("Sense dades: " + sUrl)
         return(None)
     
     iteradorFiles = taula.find_elements(By.XPATH, '//tr')
@@ -172,8 +175,6 @@ def ScrapVesselData(sUrl, browser, delay):
                 oVessel.MMSI = sTemp[1]
             else:
                 oVessel.MMSI = ""
-            
-            print(oVessel.MMSI)
         elif (atribut == "Señal de llamada"):
             oVessel.signal = valor
         elif (atribut == "GT"):
@@ -231,7 +232,6 @@ def ScrapVessels(sUrl, maxVaixells, vAllowed, vDisallowed, iDelay):
                     browser.get(sUrl)
                     time.sleep(iDelay)
         
-        
         # Una vegada que tenim l'índex de tots els Vaixells recollim les seves dades
         llistaVaixells = []
         for index in indexVaixells:
@@ -241,18 +241,26 @@ def ScrapVessels(sUrl, maxVaixells, vAllowed, vDisallowed, iDelay):
                 oVessel = ScrapVesselData(sUrl, browser, iDelay)
                                 
                 # Es guarden les dades obtingudes (falten les dades AIS)
-                llistaVaixells.append(oVessel)
+                if oVessel != None:
+                    llistaVaixells.append(oVessel)
                 
         # Retornem el llistat de vaixells que s'han pogut raspar
-        
-            
-#        with open("Vaixells.txt","w") as fitxer:
-#            fitxer.write("Id, Nombre, IMO, URL, Tipo, Eslora, MAnga, Calado, Bandera, Año, Construccion\n")
-#            for vaixell in llistaVaixells:
-#                fitxer.write(str(vaixell[0])+", "+vaixell[1]+", "+vaixell[2]+", "+vaixell[3]+", "+vaixell[4]+", "+vaixell[5]+", "+vaixell[6]+", "+vaixell[7]+", "+vaixell[8]+", "+vaixell[9]+", "+vaixell[10]+"\n")
+        return(llistaVaixells)           
     else:
         print("URL no permesa al fitxer robots.txt!!!")
         return(None)
         
         
-#def ExportVesselsData(vesselsList, output):
+def ExportVesselsData(vesselsList, output):
+    # Exportem el contingut del llistat de vaixells, format per objectes de la classe "VesselInfo"
+    if (vesselsList != None) and (output != None):
+        # Obrim la ruta especificada i procedim a generar el fitxer amb les dades raspades
+        with open(output,"w", newline='') as fitxer:
+            writer = csv.writer(fitxer)
+            
+            # Afegim la capçalera del fitxer csv
+            writer.writerow(["nombre", "tipo", "eslora", "manga", "calado", "anyo", "origen", "bandera", "imo", "puertoDestino", "urlPuertoDestino", "puertoOrigen", "urlPuertoOrigen", "ETA", "ETAPredecido", "distancia", "tiempo", "rumbo", "velocidad", "caladoActual", "estadoNavegacion", "ultimaPosicionRecibida", "MMSI", "signal", "GT", "DWT", "TEU", "crudo", "grano", "fardo"])
+            
+            # Afegim les dades de tots els vaixells que s'han raspat
+            for vessel in vesselsList:
+                writer.writerow([vessel.nombre, vessel.tipo, vessel.eslora, vessel.manga, vessel.calado, vessel.anyo, vessel.origen, vessel.bandera, vessel.imo, vessel.puertoDestino, vessel.urlPuertoDestino, vessel.puertoOrigen, vessel.urlPuertoOrigen, vessel.ETA, vessel.ETAPredecido, vessel.distancia, vessel.tiempo, vessel.rumbo, vessel.velocidad, vessel.caladoActual, vessel.estadoNavegacion, vessel.ultimaPosicionRecibida, vessel.MMSI, vessel.signal, vessel.GT, vessel.DWT, vessel.TEU, vessel.crudo, vessel.grano, vessel.fardo])
