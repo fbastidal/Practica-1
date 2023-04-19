@@ -48,6 +48,26 @@ class VesselInfo:
         self.crudo = ""
         self.grano = ""
         self.fardo = ""
+        self.puerto01_nombre = ""
+        self.puerto01_llegada = ""
+        self.puerto01_salida = ""
+        self.puerto01_tiempo = ""
+        self.puerto02_nombre = ""
+        self.puerto02_llegada = ""
+        self.puerto02_salida = ""
+        self.puerto02_tiempo = ""
+        self.puerto03_nombre = ""
+        self.puerto03_llegada = ""
+        self.puerto03_salida = ""
+        self.puerto03_tiempo = ""
+        self.puerto04_nombre = ""
+        self.puerto04_llegada = ""
+        self.puerto04_salida = ""
+        self.puerto04_tiempo = ""
+        self.puerto05_nombre = ""
+        self.puerto05_llegada = ""
+        self.puerto05_salida = ""
+        self.puerto05_tiempo = ""
 
 
 def ParseRobots(sUrl):
@@ -192,6 +212,48 @@ def ScrapVesselData(sUrl, browser, delay):
         elif (atribut == "Position received"):
             oVessel.ultimaPosicionRecibida = fila.find_element(By.CLASS_NAME, 'v3').get_attribute('data-title')
     
+    # Recuperem els detalls dels últims ports que ha visitat el vaixell, en cas d'existir:
+    oPortCalls = browser.find_elements(By.XPATH, '/html/body/div[1]/div/main/div/section[3]/div/div[2]/div[1]/div')
+    
+    if (len(oPortCalls) > 0):
+        i = 1
+        for portCall in oPortCalls:
+            # Hi ha un màxim de 5 entrades corresponents als ports, així que controlem a quin port corresponen les dades
+            match i:
+                case 1:
+                    portTimes = portCall.find_elements(By.CLASS_NAME, '_1GQkK')
+                    oVessel.puerto01_nombre = (portCall.find_element(By.TAG_NAME, 'a')).get_attribute('text')
+                    oVessel.puerto01_llegada = portTimes[0].text
+                    oVessel.puerto01_salida = portTimes[1].text
+                    oVessel.puerto01_tiempo = portTimes[2].text
+                case 2:
+                    portTimes = portCall.find_elements(By.CLASS_NAME, '_1GQkK')
+                    oVessel.puerto02_nombre = (portCall.find_element(By.TAG_NAME, 'a')).get_attribute('text')
+                    oVessel.puerto02_llegada = portTimes[0].text
+                    oVessel.puerto02_salida = portTimes[1].text
+                    oVessel.puerto02_tiempo = portTimes[2].text
+                case 3:
+                    portTimes = portCall.find_elements(By.CLASS_NAME, '_1GQkK')
+                    oVessel.puerto03_nombre = (portCall.find_element(By.TAG_NAME, 'a')).get_attribute('text')
+                    oVessel.puerto03_llegada = portTimes[0].text
+                    oVessel.puerto03_salida = portTimes[1].text
+                    oVessel.puerto03_tiempo = portTimes[2].text
+                case 4:
+                    portTimes = portCall.find_elements(By.CLASS_NAME, '_1GQkK')
+                    oVessel.puerto04_nombre = (portCall.find_element(By.TAG_NAME, 'a')).get_attribute('text')
+                    oVessel.puerto04_llegada = portTimes[0].text
+                    oVessel.puerto04_salida = portTimes[1].text
+                    oVessel.puerto04_tiempo = portTimes[2].text
+                case 5:
+                    portTimes = portCall.find_elements(By.CLASS_NAME, '_1GQkK')
+                    oVessel.puerto05_nombre = (portCall.find_element(By.TAG_NAME, 'a')).get_attribute('text')
+                    oVessel.puerto05_llegada = portTimes[0].text
+                    oVessel.puerto05_salida = portTimes[1].text
+                    oVessel.puerto05_tiempo = portTimes[2].text
+            
+            # Passem al següent element de la llista de ports
+            i += 1
+    
     # Retornem l'objecte que conté tota la informació del vaixell actual
     return(oVessel)
 
@@ -259,8 +321,8 @@ def ExportVesselsData(vesselsList, output):
             writer = csv.writer(fitxer)
             
             # Afegim la capçalera del fitxer csv
-            writer.writerow(["nombre", "tipo", "eslora", "manga", "calado", "anyo", "origen", "bandera", "imo", "puertoDestino", "urlPuertoDestino", "puertoOrigen", "urlPuertoOrigen", "ETA", "ETAPredecido", "distancia", "tiempo", "rumbo", "velocidad", "caladoActual", "estadoNavegacion", "ultimaPosicionRecibida", "MMSI", "signal", "GT", "DWT", "TEU", "crudo", "grano", "fardo"])
+            writer.writerow(["nombre", "tipo", "eslora", "manga", "calado", "anyo", "origen", "bandera", "imo", "puertoDestino", "urlPuertoDestino", "puertoOrigen", "urlPuertoOrigen", "ETA", "ETAPredecido", "distancia", "tiempo", "rumbo", "velocidad", "caladoActual", "estadoNavegacion", "ultimaPosicionRecibida", "MMSI", "signal", "GT", "DWT", "TEU", "crudo", "grano", "fardo", "puerto01_nombre", "puerto01_llegada", "puerto01_salida", "puerto01_tiempo", "puerto02_nombre", "puerto02_llegada", "puerto02_salida", "puerto02_tiempo", "puerto03_nombre", "puerto03_llegada", "puerto03_salida", "puerto03_tiempo", "puerto04_nombre", "puerto04_llegada", "puerto04_salida", "puerto04_tiempo", "puerto05_nombre", "puerto05_llegada", "puerto05_salida", "puerto05_tiempo"])
             
             # Afegim les dades de tots els vaixells que s'han raspat
             for vessel in vesselsList:
-                writer.writerow([vessel.nombre, vessel.tipo, vessel.eslora, vessel.manga, vessel.calado, vessel.anyo, vessel.origen, vessel.bandera, vessel.imo, vessel.puertoDestino, vessel.urlPuertoDestino, vessel.puertoOrigen, vessel.urlPuertoOrigen, vessel.ETA, vessel.ETAPredecido, vessel.distancia, vessel.tiempo, vessel.rumbo, vessel.velocidad, vessel.caladoActual, vessel.estadoNavegacion, vessel.ultimaPosicionRecibida, vessel.MMSI, vessel.signal, vessel.GT, vessel.DWT, vessel.TEU, vessel.crudo, vessel.grano, vessel.fardo])
+                writer.writerow([vessel.nombre, vessel.tipo, vessel.eslora, vessel.manga, vessel.calado, vessel.anyo, vessel.origen, vessel.bandera, vessel.imo, vessel.puertoDestino, vessel.urlPuertoDestino, vessel.puertoOrigen, vessel.urlPuertoOrigen, vessel.ETA, vessel.ETAPredecido, vessel.distancia, vessel.tiempo, vessel.rumbo, vessel.velocidad, vessel.caladoActual, vessel.estadoNavegacion, vessel.ultimaPosicionRecibida, vessel.MMSI, vessel.signal, vessel.GT, vessel.DWT, vessel.TEU, vessel.crudo, vessel.grano, vessel.fardo, vessel.puerto01_nombre, vessel.puerto01_llegada, vessel.puerto01_salida, vessel.puerto01_tiempo, vessel.puerto02_nombre, vessel.puerto02_llegada, vessel.puerto02_salida, vessel.puerto02_tiempo, vessel.puerto03_nombre, vessel.puerto03_llegada, vessel.puerto03_salida, vessel.puerto03_tiempo, vessel.puerto04_nombre, vessel.puerto04_llegada, vessel.puerto04_salida, vessel.puerto04_tiempo, vessel.puerto05_nombre, vessel.puerto05_llegada, vessel.puerto05_salida, vessel.puerto05_tiempo])
