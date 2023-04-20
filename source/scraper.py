@@ -227,57 +227,56 @@ def ScrapVesselData(sUrl, browser, delay):
         i = 1
         for portCall in oPortCalls:
             # Hi ha un màxim de 5 entrades corresponents als ports, així que controlem a quin port corresponen les dades
-            match i:
-                case 1:
-                    portTimes = portCall.find_elements(By.CLASS_NAME, '_1GQkK')
-                    portCallPortName = portCall.find_elements(By.TAG_NAME, 'a')
-                    if (len(portCallPortName) > 0):
-                        oVessel.puerto01_nombre = (portCall.find_element(By.TAG_NAME, 'a')).get_attribute('text')
-                    else:
-                        oVessel.puerto01_nombre = portCall.find_element(By.CLASS_NAME, 'flx').text
-                    oVessel.puerto01_llegada = portTimes[0].text
-                    oVessel.puerto01_salida = portTimes[1].text
-                    oVessel.puerto01_tiempo = portTimes[2].text
-                case 2:
-                    portTimes = portCall.find_elements(By.CLASS_NAME, '_1GQkK')
-                    portCallPortName = portCall.find_elements(By.TAG_NAME, 'a')
-                    if (len(portCallPortName) > 0):
-                        oVessel.puerto02_nombre = (portCall.find_element(By.TAG_NAME, 'a')).get_attribute('text')
-                    else:
-                        oVessel.puerto02_nombre = portCall.find_element(By.CLASS_NAME, 'flx').text
-                    oVessel.puerto02_llegada = portTimes[0].text
-                    oVessel.puerto02_salida = portTimes[1].text
-                    oVessel.puerto02_tiempo = portTimes[2].text
-                case 3:
-                    portTimes = portCall.find_elements(By.CLASS_NAME, '_1GQkK')
-                    portCallPortName = portCall.find_elements(By.TAG_NAME, 'a')
-                    if (len(portCallPortName) > 0):
-                        oVessel.puerto03_nombre = (portCall.find_element(By.TAG_NAME, 'a')).get_attribute('text')
-                    else:
-                        oVessel.puerto03_nombre = portCall.find_element(By.CLASS_NAME, 'flx').text
-                    oVessel.puerto03_llegada = portTimes[0].text
-                    oVessel.puerto03_salida = portTimes[1].text
-                    oVessel.puerto03_tiempo = portTimes[2].text
-                case 4:
-                    portTimes = portCall.find_elements(By.CLASS_NAME, '_1GQkK')
-                    portCallPortName = portCall.find_elements(By.TAG_NAME, 'a')
-                    if (len(portCallPortName) > 0):
-                        oVessel.puerto04_nombre = (portCall.find_element(By.TAG_NAME, 'a')).get_attribute('text')
-                    else:
-                        oVessel.puerto04_nombre = portCall.find_element(By.CLASS_NAME, 'flx').text
-                    oVessel.puerto04_llegada = portTimes[0].text
-                    oVessel.puerto04_salida = portTimes[1].text
-                    oVessel.puerto04_tiempo = portTimes[2].text
-                case 5:
-                    portTimes = portCall.find_elements(By.CLASS_NAME, '_1GQkK')
-                    portCallPortName = portCall.find_elements(By.TAG_NAME, 'a')
-                    if (len(portCallPortName) > 0):
-                        oVessel.puerto05_nombre = (portCall.find_element(By.TAG_NAME, 'a')).get_attribute('text')
-                    else:
-                        oVessel.puerto05_nombre = portCall.find_element(By.CLASS_NAME, 'flx').text
-                    oVessel.puerto05_llegada = portTimes[0].text
-                    oVessel.puerto05_salida = portTimes[1].text
-                    oVessel.puerto05_tiempo = portTimes[2].text
+            if (i == 1):
+                portTimes = portCall.find_elements(By.CLASS_NAME, '_1GQkK')
+                portCallPortName = portCall.find_elements(By.TAG_NAME, 'a')
+                if (len(portCallPortName) > 0):
+                    oVessel.puerto01_nombre = (portCall.find_element(By.TAG_NAME, 'a')).get_attribute('text')
+                else:
+                    oVessel.puerto01_nombre = portCall.find_element(By.CLASS_NAME, 'flx').text
+                oVessel.puerto01_llegada = portTimes[0].text
+                oVessel.puerto01_salida = portTimes[1].text
+                oVessel.puerto01_tiempo = portTimes[2].text
+            elif (i == 2):
+                portTimes = portCall.find_elements(By.CLASS_NAME, '_1GQkK')
+                portCallPortName = portCall.find_elements(By.TAG_NAME, 'a')
+                if (len(portCallPortName) > 0):
+                    oVessel.puerto02_nombre = (portCall.find_element(By.TAG_NAME, 'a')).get_attribute('text')
+                else:
+                    oVessel.puerto02_nombre = portCall.find_element(By.CLASS_NAME, 'flx').text
+                oVessel.puerto02_llegada = portTimes[0].text
+                oVessel.puerto02_salida = portTimes[1].text
+                oVessel.puerto02_tiempo = portTimes[2].text
+            elif (i == 3):
+                portTimes = portCall.find_elements(By.CLASS_NAME, '_1GQkK')
+                portCallPortName = portCall.find_elements(By.TAG_NAME, 'a')
+                if (len(portCallPortName) > 0):
+                    oVessel.puerto03_nombre = (portCall.find_element(By.TAG_NAME, 'a')).get_attribute('text')
+                else:
+                    oVessel.puerto03_nombre = portCall.find_element(By.CLASS_NAME, 'flx').text
+                oVessel.puerto03_llegada = portTimes[0].text
+                oVessel.puerto03_salida = portTimes[1].text
+                oVessel.puerto03_tiempo = portTimes[2].text
+            elif (i == 4):
+                portTimes = portCall.find_elements(By.CLASS_NAME, '_1GQkK')
+                portCallPortName = portCall.find_elements(By.TAG_NAME, 'a')
+                if (len(portCallPortName) > 0):
+                    oVessel.puerto04_nombre = (portCall.find_element(By.TAG_NAME, 'a')).get_attribute('text')
+                else:
+                    oVessel.puerto04_nombre = portCall.find_element(By.CLASS_NAME, 'flx').text
+                oVessel.puerto04_llegada = portTimes[0].text
+                oVessel.puerto04_salida = portTimes[1].text
+                oVessel.puerto04_tiempo = portTimes[2].text
+            elif (i == 5):
+                portTimes = portCall.find_elements(By.CLASS_NAME, '_1GQkK')
+                portCallPortName = portCall.find_elements(By.TAG_NAME, 'a')
+                if (len(portCallPortName) > 0):
+                    oVessel.puerto05_nombre = (portCall.find_element(By.TAG_NAME, 'a')).get_attribute('text')
+                else:
+                    oVessel.puerto05_nombre = portCall.find_element(By.CLASS_NAME, 'flx').text
+                oVessel.puerto05_llegada = portTimes[0].text
+                oVessel.puerto05_salida = portTimes[1].text
+                oVessel.puerto05_tiempo = portTimes[2].text
             
             # Passem al següent element de la llista de ports
             i += 1
