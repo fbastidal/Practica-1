@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 
 import io
-import time
 import csv
+import time
+from datetime import datetime
 from selenium import webdriver                                     # Drivers de Firefox y Chrome
 from selenium.webdriver.common.by import By                        # Per a localitzar elements en una pàgina
 from selenium.common.exceptions import NoSuchElementException
@@ -71,6 +72,8 @@ class VesselInfo:
 
 
 def ParseRobots(sUrl):
+    print("[" + str(datetime.utcfromtimestamp(time.time())) + " UTC] [INFO] Lectura del fitxer robots.txt iniciada")
+    
     # Preparem les variables amb els valors per defecte
     iDelay = 0
     lAllowed = []
@@ -87,6 +90,7 @@ def ParseRobots(sUrl):
     bufRobots = io.StringIO(str(elemRobots.text))
 
     # Només volem revisar la informació referent al user-agent general, ja que utilitzarem un crawler no típic
+    print("[" + str(datetime.utcfromtimestamp(time.time())) + " UTC] [INFO] Parsing del fitxer robots.txt iniciat")
     sUserAgent = ""    
     for sRobotsLine in bufRobots:
         if "User-agent: *" in sRobotsLine:
@@ -103,12 +107,16 @@ def ParseRobots(sUrl):
             elif "Crawl-delay" in sRobotsLine:
                 iDelay = int((sRobotsLine.split(': '))[1])
 
+    print("[" + str(datetime.utcfromtimestamp(time.time())) + " UTC] [INFO] Parsing del fitxer robots.txt finalitzat")
+    print("[" + str(datetime.utcfromtimestamp(time.time())) + " UTC] [INFO] Lectura del fitxer robots.txt finalitzada")
+    
     # Retornem l'objecte amb la configuració del robot/crawler: 
     return(RobotsConfig(lAllowed, lDisallowed, iDelay))
 
 
 def CheckUrlIsAllowed(sUrl, vAllowed, vDisallowed):
     # Comprovem si la ruta que es vol raspar està inclosa o no dins el fitxer robots i, per tant, si està permesa o no
+    print("[" + str(datetime.utcfromtimestamp(time.time())) + " UTC] [INFO] Comprovant si la URL " + sUrl + " està permesa al fitxer robots.txt")
     bAllowed = True
     bFinish = False
     for sAllowed in vAllowed:
@@ -130,23 +138,23 @@ def ScrapVesselData(sUrl, browser, delay):
     time.sleep(delay)
    
     # Identificam la taula dades
+    print("[" + str(datetime.utcfromtimestamp(time.time())) + " UTC] [INFO] Raspant dades del vaixell amb URL " + sUrl)
     try:
         taula = browser.find_element(By.XPATH, '//table[@class="aparams"]')
     except NoSuchElementException:
-        print("Sense dades: " + sUrl)
-        return(None)
+        print("[" + str(datetime.utcfromtimestamp(time.time())) + " UTC] [WARN] Sense dades a la URL " + sUrl)
+        return(None)   
     
-    iteradorFiles = taula.find_elements(By.XPATH, '//tr')
-    
-    # Creem el nou objecte que contindrà la informació del vaixell
+    # Creem el nou objecte que contindrà la informació del vaixell i iniciem el raspat de les dades
     oVessel = VesselInfo()
-    
+    iteradorFiles = taula.find_elements(By.XPATH, '//tr')
     for fila in iteradorFiles:
         atribut = ""
         try:
             atribut = fila.find_element(By.CLASS_NAME, 'n3').get_attribute('innerText')
             valor = fila.find_element(By.CLASS_NAME, 'v3').get_attribute('innerText')
         except NoSuchElementException:
+            print("[" + str(datetime.utcfromtimestamp(time.time())) + " UTC] [WARN] Sense dades a la URL " + sUrl + " per la fila actual")
             continue
         
         if (atribut == "Nombre del buque"):
@@ -222,31 +230,51 @@ def ScrapVesselData(sUrl, browser, delay):
             match i:
                 case 1:
                     portTimes = portCall.find_elements(By.CLASS_NAME, '_1GQkK')
-                    oVessel.puerto01_nombre = (portCall.find_element(By.TAG_NAME, 'a')).get_attribute('text')
+                    portCallPortName = portCall.find_elements(By.TAG_NAME, 'a')
+                    if (len(portCallPortName) > 0):
+                        oVessel.puerto01_nombre = (portCall.find_element(By.TAG_NAME, 'a')).get_attribute('text')
+                    else:
+                        oVessel.puerto01_nombre = portCall.find_element(By.CLASS_NAME, 'flx').text
                     oVessel.puerto01_llegada = portTimes[0].text
                     oVessel.puerto01_salida = portTimes[1].text
                     oVessel.puerto01_tiempo = portTimes[2].text
                 case 2:
                     portTimes = portCall.find_elements(By.CLASS_NAME, '_1GQkK')
-                    oVessel.puerto02_nombre = (portCall.find_element(By.TAG_NAME, 'a')).get_attribute('text')
+                    portCallPortName = portCall.find_elements(By.TAG_NAME, 'a')
+                    if (len(portCallPortName) > 0):
+                        oVessel.puerto02_nombre = (portCall.find_element(By.TAG_NAME, 'a')).get_attribute('text')
+                    else:
+                        oVessel.puerto02_nombre = portCall.find_element(By.CLASS_NAME, 'flx').text
                     oVessel.puerto02_llegada = portTimes[0].text
                     oVessel.puerto02_salida = portTimes[1].text
                     oVessel.puerto02_tiempo = portTimes[2].text
                 case 3:
                     portTimes = portCall.find_elements(By.CLASS_NAME, '_1GQkK')
-                    oVessel.puerto03_nombre = (portCall.find_element(By.TAG_NAME, 'a')).get_attribute('text')
+                    portCallPortName = portCall.find_elements(By.TAG_NAME, 'a')
+                    if (len(portCallPortName) > 0):
+                        oVessel.puerto03_nombre = (portCall.find_element(By.TAG_NAME, 'a')).get_attribute('text')
+                    else:
+                        oVessel.puerto03_nombre = portCall.find_element(By.CLASS_NAME, 'flx').text
                     oVessel.puerto03_llegada = portTimes[0].text
                     oVessel.puerto03_salida = portTimes[1].text
                     oVessel.puerto03_tiempo = portTimes[2].text
                 case 4:
                     portTimes = portCall.find_elements(By.CLASS_NAME, '_1GQkK')
-                    oVessel.puerto04_nombre = (portCall.find_element(By.TAG_NAME, 'a')).get_attribute('text')
+                    portCallPortName = portCall.find_elements(By.TAG_NAME, 'a')
+                    if (len(portCallPortName) > 0):
+                        oVessel.puerto04_nombre = (portCall.find_element(By.TAG_NAME, 'a')).get_attribute('text')
+                    else:
+                        oVessel.puerto04_nombre = portCall.find_element(By.CLASS_NAME, 'flx').text
                     oVessel.puerto04_llegada = portTimes[0].text
                     oVessel.puerto04_salida = portTimes[1].text
                     oVessel.puerto04_tiempo = portTimes[2].text
                 case 5:
                     portTimes = portCall.find_elements(By.CLASS_NAME, '_1GQkK')
-                    oVessel.puerto05_nombre = (portCall.find_element(By.TAG_NAME, 'a')).get_attribute('text')
+                    portCallPortName = portCall.find_elements(By.TAG_NAME, 'a')
+                    if (len(portCallPortName) > 0):
+                        oVessel.puerto05_nombre = (portCall.find_element(By.TAG_NAME, 'a')).get_attribute('text')
+                    else:
+                        oVessel.puerto05_nombre = portCall.find_element(By.CLASS_NAME, 'flx').text
                     oVessel.puerto05_llegada = portTimes[0].text
                     oVessel.puerto05_salida = portTimes[1].text
                     oVessel.puerto05_tiempo = portTimes[2].text
@@ -254,17 +282,22 @@ def ScrapVesselData(sUrl, browser, delay):
             # Passem al següent element de la llista de ports
             i += 1
     
+    print("[" + str(datetime.utcfromtimestamp(time.time())) + " UTC] [INFO] Dades del vaixell amb URL " + sUrl + " raspades")
+    
     # Retornem l'objecte que conté tota la informació del vaixell actual
     return(oVessel)
 
 
 def ScrapVessels(sUrl, maxVaixells, vAllowed, vDisallowed, iDelay):
-    # Obrim el navegado Chrome
+    print("[" + str(datetime.utcfromtimestamp(time.time())) + " UTC] [INFO] Raspat del llistat de vaixells iniciat")
+    
+    # Obrim el navegador Chrome
     browser = webdriver.Chrome()
     time.sleep(iDelay)
         
     # Carregam la pàgina principal de la base de dades de vaixells AIS
     if CheckUrlIsAllowed(sUrl, vAllowed, vDisallowed):
+        print("[" + str(datetime.utcfromtimestamp(time.time())) + " UTC] [INFO] URL " + sUrl + " permesa al fitxer robots.txt")
         browser.get(sUrl)
         time.sleep(iDelay)
         
@@ -291,25 +324,34 @@ def ScrapVessels(sUrl, maxVaixells, vAllowed, vDisallowed, iDelay):
                 botoNext = browser.find_element(By.XPATH, '//link[@rel="next"]')
                 sUrl = botoNext.get_attribute("href")
                 if CheckUrlIsAllowed(sUrl, vAllowed, vDisallowed):
+                    print("[" + str(datetime.utcfromtimestamp(time.time())) + " UTC] [INFO] URL " + sUrl + " permesa al fitxer robots.txt")
                     browser.get(sUrl)
                     time.sleep(iDelay)
+                else:
+                    print("[" + str(datetime.utcfromtimestamp(time.time())) + " UTC] [WARN] URL " + sUrl + " NO permesa al fitxer robots.txt")
         
         # Una vegada que tenim l'índex de tots els Vaixells recollim les seves dades
         llistaVaixells = []
         for index in indexVaixells:
             sUrl = index[0]            
             if CheckUrlIsAllowed(sUrl, vAllowed, vDisallowed):
+                print("[" + str(datetime.utcfromtimestamp(time.time())) + " UTC] [INFO] URL " + sUrl + " permesa al fitxer robots.txt")
+                
                 # Fem el raspat del vaixell en curs
                 oVessel = ScrapVesselData(sUrl, browser, iDelay)
                                 
                 # Es guarden les dades obtingudes (falten les dades AIS)
                 if oVessel != None:
                     llistaVaixells.append(oVessel)
+            else:
+                print("[" + str(datetime.utcfromtimestamp(time.time())) + " UTC] [INFO] URL " + sUrl + " NO permesa al fitxer robots.txt")
                 
         # Retornem el llistat de vaixells que s'han pogut raspar
+        print("[" + str(datetime.utcfromtimestamp(time.time())) + " UTC] [INFO] Raspat del llistat de vaixells finalitzat")
         return(llistaVaixells)           
     else:
-        print("URL no permesa al fitxer robots.txt!!!")
+        print("[" + str(datetime.utcfromtimestamp(time.time())) + " UTC] [INFO] Raspat del llistat de vaixells finalitzat")
+        print("[" + str(datetime.utcfromtimestamp(time.time())) + " UTC] [WARN] URL " + sUrl + " NO permesa al fitxer robots.txt")
         return(None)
         
         
