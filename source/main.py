@@ -13,6 +13,7 @@ class ScraperOptions:
         self.passwordLogin = "Pra1_Cicle_de_Vida"
         self.urlRobot = "https://www.vesselfinder.com/robots.txt"
         self.urlScrapper = "https://www.vesselfinder.com/es/vessels"
+        self.nivellDebug = 1 # Valors 0 = Cap; 1 = Només missatges informatius; 2 = Tot
 
 # Creem una funció per ensenyar el menú inicial i obtenir les opcions a utilitzar
 def ShowMenu():
@@ -69,7 +70,7 @@ def main():
     # Iniciem el web scraping
     if (oScraperOptions.maxVaixells > 0):
         # Primer revisem el fitxer "robots.txt" de la web
-        oParsedRobots = ParseRobots(oScraperOptions.urlRobot)
+        oParsedRobots = ParseRobots(oScraperOptions)
         
         # Iniciem el procés de raspat
         oVesselsList = ScrapVessels(oScraperOptions, oParsedRobots )
