@@ -8,6 +8,11 @@ class ScraperOptions:
     def __init__(self):
         self.maxVaixells = 0
         self.outputFile = ""
+        self.urlLogin = "https://www.vesselfinder.com/es/login"
+        self.usuariLogin = "fbastidal@uoc.edu"
+        self.passwordLogin = "Pra1_Cicle_de_Vida"
+        self.urlRobot = "https://www.vesselfinder.com/robots.txt"
+        self.urlScrapper = "https://www.vesselfinder.com/es/vessels"
 
 # Creem una funció per ensenyar el menú inicial i obtenir les opcions a utilitzar
 def ShowMenu():
@@ -60,17 +65,18 @@ def ShowMenu():
 def main():
     # Mostrem el menú inicial per obtenir les opcions del raspat
     oScraperOptions = ShowMenu()
-    
+        
     # Iniciem el web scraping
     if (oScraperOptions.maxVaixells > 0):
         # Primer revisem el fitxer "robots.txt" de la web
-        oParsedRobots = ParseRobots('https://www.vesselfinder.com/robots.txt')
+        oParsedRobots = ParseRobots(oScraperOptions.urlRobot)
         
         # Iniciem el procés de raspat
-        oVesselsList = ScrapVessels('https://www.vesselfinder.com/es/vessels', oScraperOptions.maxVaixells, oParsedRobots.allowed, oParsedRobots.disallowed, oParsedRobots.delay)
+        oVesselsList = ScrapVessels(oScraperOptions, oParsedRobots )
         ExportVesselsData(oVesselsList, oScraperOptions.outputFile)
     else:
         print("[" + str(datetime.utcfromtimestamp(time.time())) + " UTC] [INFO] No hi ha vaixells a raspar")
 
 if __name__ == "__main__":
     main()
+    

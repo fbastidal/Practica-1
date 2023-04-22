@@ -70,6 +70,23 @@ class VesselInfo:
         self.puerto05_salida = ""
         self.puerto05_tiempo = ""
 
+def login(browser, options, robots):
+    print("[" + str(datetime.utcfromtimestamp(time.time())) + " UTC] [INFO] Login iniciat")
+    
+    # Carregam la pàgina de login
+    browser.get(options.urlLogin)
+    time.sleep(robots.delay)
+    # Validam que el títol de la pàgina correspon amb el que esperam
+    assert "Log In - VesselFinde" in browser.title
+
+    campUsuari = browser.find_element(By.XPATH, "//input[@id='email']")
+    campUsuari.send_keys(options.usuariLogin)
+
+    campPassword = browser.find_element(By.XPATH, "//input[@id='password']")
+    campPassword.send_keys(options.passwordLogin)
+
+    botoLogin = browser.find_element(By.XPATH, "//input[@id='loginbtn']")
+    botoLogin.click()
 
 def ParseRobots(sUrl):
     print("[" + str(datetime.utcfromtimestamp(time.time())) + " UTC] [INFO] Lectura del fitxer robots.txt iniciada")
@@ -286,25 +303,26 @@ def ScrapVesselData(sUrl, browser, delay):
     # Retornem l'objecte que conté tota la informació del vaixell actual
     return(oVessel)
 
-
-def ScrapVessels(sUrl, maxVaixells, vAllowed, vDisallowed, iDelay):
-    print("[" + str(datetime.utcfromtimestamp(time.time())) + " UTC] [INFO] Raspat del llistat de vaixells iniciat")
-    
+def ScrapVessels(options, robots):
     # Obrim el navegador Chrome
     browser = webdriver.Chrome()
-    time.sleep(iDelay)
-        
+    time.sleep(robots.delay)
+    
+    # Inicialitzam amb usuari i password
+    login(browser, options, robots)
+
+    print("[" + str(datetime.utcfromtimestamp(time.time())) + " UTC] [INFO] Raspat del llistat de vaixells iniciat")
     # Carregam la pàgina principal de la base de dades de vaixells AIS
-    if CheckUrlIsAllowed(sUrl, vAllowed, vDisallowed):
-        print("[" + str(datetime.utcfromtimestamp(time.time())) + " UTC] [INFO] URL " + sUrl + " permesa al fitxer robots.txt")
-        browser.get(sUrl)
-        time.sleep(iDelay)
+    if CheckUrlIsAllowed(options.urlScrapper, robots.allowed, robots.disallowed):
+        print("[" + str(datetime.utcfromtimestamp(time.time())) + " UTC] [INFO] URL " + options.urlScrapper + " permesa al fitxer robots.txt")
+        browser.get(options.urlScrapper)
+        time.sleep(robots.delay)
         
         # Cream un índex dels vaixells que anam a registrar
         indexVaixells = []
         numVaixells = 0 # Inicialment cap vaixell
         
-        while numVaixells < maxVaixells:
+        while numVaixells < options.maxVaixells:
             # Validam que el títol de la pàgina correspon amb el que esperam
             assert "Barcos base de datos - VesselFinder" in browser.title
         
@@ -315,17 +333,17 @@ def ScrapVessels(sUrl, maxVaixells, vAllowed, vDisallowed, iDelay):
             for vaixell in iteradorVaixells:
                 numVaixells += 1
                 indexVaixells.append([vaixell.get_attribute("href")])
-                if numVaixells >= maxVaixells:
+                if numVaixells >= options.maxVaixells:
                     break;
         
-            if numVaixells < maxVaixells:
+            if numVaixells < options.maxVaixells:
                 # Com que no tenim prou vaixells avançam a la següent pàgina
                 botoNext = browser.find_element(By.XPATH, '//link[@rel="next"]')
                 sUrl = botoNext.get_attribute("href")
-                if CheckUrlIsAllowed(sUrl, vAllowed, vDisallowed):
+                if CheckUrlIsAllowed(sUrl, robots.allowed, robots.disallowed):
                     print("[" + str(datetime.utcfromtimestamp(time.time())) + " UTC] [INFO] URL " + sUrl + " permesa al fitxer robots.txt")
                     browser.get(sUrl)
-                    time.sleep(iDelay)
+                    time.sleep(robots.delay)
                 else:
                     print("[" + str(datetime.utcfromtimestamp(time.time())) + " UTC] [WARN] URL " + sUrl + " NO permesa al fitxer robots.txt")
         
@@ -333,11 +351,11 @@ def ScrapVessels(sUrl, maxVaixells, vAllowed, vDisallowed, iDelay):
         llistaVaixells = []
         for index in indexVaixells:
             sUrl = index[0]            
-            if CheckUrlIsAllowed(sUrl, vAllowed, vDisallowed):
+            if CheckUrlIsAllowed(sUrl, robots.allowed, robots.disallowed):
                 print("[" + str(datetime.utcfromtimestamp(time.time())) + " UTC] [INFO] URL " + sUrl + " permesa al fitxer robots.txt")
                 
                 # Fem el raspat del vaixell en curs
-                oVessel = ScrapVesselData(sUrl, browser, iDelay)
+                oVessel = ScrapVesselData(sUrl, browser, robots.delay)
                                 
                 # Es guarden les dades obtingudes (falten les dades AIS)
                 if oVessel != None:
