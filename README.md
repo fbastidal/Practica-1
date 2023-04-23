@@ -24,6 +24,7 @@ El lloc web és un portal de les subastes judicials, notarials i tributàries
 
 ## Publicación en Zenodo
 El dataset ha estat publicat en Zenodo amb  DOI [10.5281/zenodo.7856489](https://doi.org/10.5281/zenodo.7856489).
+
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7856489.svg)](https://doi.org/10.5281/zenodo.7856489)
 
 ## Vídeo de presentació
