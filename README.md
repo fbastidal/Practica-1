@@ -17,17 +17,14 @@ URL del lloc web triat: https://www.vesselfinder.com/es/vessels
 El lloc web és un portal de les subastes judicials, notarials i tributàries
 
   * `memoria.pdf`: Document de respostes
-  * `/source/scraper.py`: Arxiu principal
+  * `/source/main.py`: Arxiu principal
   * `/source/scraper.py`: Codi de l'scraper
-  * (...)
   * `/source/requirements.txt`: Llista de paquets emprats (Python 3.10).
-  * `/dataset/DataSet.csv`: Conjunt de dades resultat
-  * (...)
+  * `/dataset/collected_data_1000.csv`: Conjunt de dades resultat
 
 ## Publicación en Zenodo
-El dataset ha estat publicat en Zenodo amb  DOI [10.5281/zenodo.0000000](https://doi.org/10.5281/zenodo.0000000).
-
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.0000000.svg)](https://doi.org/10.5281/zenodo.0000000)
+El dataset ha estat publicat en Zenodo amb  DOI [10.5281/zenodo.7856489](https://doi.org/10.5281/zenodo.7856489).
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7856489.svg)](https://doi.org/10.5281/zenodo.7856489)
 
 ## Vídeo de presentació
 

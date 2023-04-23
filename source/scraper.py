@@ -88,6 +88,7 @@ def login(browser, options, robots):
 
     botoLogin = browser.find_element(By.XPATH, "//input[@id='loginbtn']")
     botoLogin.click()
+    time.sleep(robots.delay)
 
 def ParseRobots(options):
     if options.nivellDebug>=1:
@@ -318,6 +319,10 @@ def ScrapVessels(options, robots):
     # Obrim el navegador Chrome
     browser = webdriver.Chrome()
     
+    #Visualitzam l'agent
+    if options.nivellDebug >= 1:
+        print("User-agent emprat: " + browser.execute_script("return navigator.userAgent;"))
+
     # Inicialitzam amb usuari i password
     login(browser, options, robots)
 
