@@ -77,6 +77,7 @@ def login(browser, options, robots):
     # Carregam la pàgina de login
     browser.get(options.urlLogin)
     time.sleep(robots.delay)
+    
     # Validam que el títol de la pàgina correspon amb el que esperam
     assert "Log In - VesselFinde" in browser.title
 
@@ -89,6 +90,12 @@ def login(browser, options, robots):
     botoLogin = browser.find_element(By.XPATH, "//input[@id='loginbtn']")
     botoLogin.click()
     time.sleep(robots.delay)
+    
+    # Comprobem si les credencials eren correctes o no
+    oError = browser.find_elements(By.CLASS_NAME, 'error')
+    if (len(oError) > 0):
+        if (oError[0].text == "Incorrect email or password"):
+            print("[" + str(datetime.utcfromtimestamp(time.time())) + " UTC] [ERROR] Les credencials proporcionades no són vàlides, es procedeix amb el raspat sense login")
 
 def ParseRobots(options):
     if options.nivellDebug>=1:
@@ -323,8 +330,9 @@ def ScrapVessels(options, robots):
     if options.nivellDebug >= 1:
         print("User-agent emprat: " + browser.execute_script("return navigator.userAgent;"))
 
-    # Inicialitzam amb usuari i password
-    login(browser, options, robots)
+    # Inicialitzam amb usuari i password, si els tenim
+    if ((options.usuariLogin != "") and (options.usuariLogin != None) and (options.passwordLogin != "") and (options.passwordLogin != None)):
+        login(browser, options, robots)
 
     if options.nivellDebug>=1:
         print("[" + str(datetime.utcfromtimestamp(time.time())) + " UTC] [INFO] Raspat del llistat de vaixells iniciat")

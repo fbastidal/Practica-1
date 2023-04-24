@@ -2,6 +2,7 @@
 
 import time
 from datetime import datetime
+from getpass import getpass
 from scraper import *
 
 class ScraperOptions:
@@ -9,8 +10,8 @@ class ScraperOptions:
         self.maxVaixells = 0
         self.outputFile = ""
         self.urlLogin = "https://www.vesselfinder.com/es/login"
-        self.usuariLogin = "fbastidal@uoc.edu"
-        self.passwordLogin = "Pra1_Cicle_de_Vida"
+        self.usuariLogin = ""
+        self.passwordLogin = ""
         self.urlRobot = "https://www.vesselfinder.com/robots.txt"
         self.urlScrapper = "https://www.vesselfinder.com/es/vessels"
         self.nivellDebug = 1 # Valors 0 = Cap; 1 = Només missatges informatius; 2 = Tot
@@ -47,8 +48,8 @@ def ShowMenu():
     print("                                                                               ")
     print("===============================================================================")
     print("")
-    value = input("De quants vaixells vols intentar raspar dades?: ")
     
+    value = input("De quants vaixells vols intentar raspar dades?: ")
     if (value.isnumeric()):
         oScraperOptions.maxVaixells = int(value)
         
@@ -56,10 +57,18 @@ def ShowMenu():
         print("")
         value = input("Ruta del fitxer CSV on vols salvar les dades raspades (inclou la ruta i el nom del fitxer):\n")
         oScraperOptions.outputFile = value
+        print("")
+        
+        value = input("Si vols realitzar el raspat logat, introdueix el teu nom d'usuari, en cas contrari, no escriguis res: ")
+        if ((value != "") and (value != None)):
+            oScraperOptions.usuariLogin = value
+            value = getpass('Introdueix la teva contrassenya: ')
+            oScraperOptions.passwordLogin = value
+            print("")
     else:
         print("[" + str(datetime.utcfromtimestamp(time.time())) + " UTC] [ERROR] El valor introduït no és de tipus numèric!!")
         oScraperOptions.maxVaixells = 0
-
+        
     return(oScraperOptions)
 
 # Definim la funció principal desde la que es treballarà
