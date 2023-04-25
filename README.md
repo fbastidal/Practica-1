@@ -14,7 +14,7 @@ URL del lloc web triat: https://www.vesselfinder.com/es/vessels
   * Ivan Benaiges Trenchs - [ibenaiges@uoc.edu](ibenaiges@uoc.edu)
 
 ## Descripció del repositori
-El lloc web és un portal de les subastes judicials, notarials i tributàries
+El lloc web és un portal del sistema d’identificació automàtica (AIS) de vaixells
 
   * `memoria.pdf`: Document de respostes
   * `/source/main.py`: Arxiu principal
@@ -29,4 +29,4 @@ El dataset ha estat publicat en Zenodo amb  DOI [10.5281/zenodo.7856489](https:/
 
 ## Vídeo de presentació
 
-Enllaç al vídeo de presentació de la pràctica:  [https://drive.google.com/...](https://drive.google.com/...)
+Enllaç al vídeo de presentació de la pràctica:  [https://drive.google.com/file/d/1TMU1ZIB34lOn7JD-Ml_Q9x48dOYZq6kU/view?usp=share_link](https://drive.google.com/file/d/1TMU1ZIB34lOn7JD-Ml_Q9x48dOYZq6kU/view?usp=share_link)
